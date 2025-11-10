@@ -1,17 +1,21 @@
+import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
 import Gallery from "@/components/Gallery";
 import Services from "@/components/Services";
+import Reviews from "@/components/Reviews";
 import Schedule from "@/components/Schedule";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
       <Hero />
       <About />
       <Gallery />
       <Services />
+      <Reviews />
       <Schedule />
       <WhatsAppButton />
       

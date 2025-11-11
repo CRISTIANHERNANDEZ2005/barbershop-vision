@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Star, MessageSquare, Pencil, Trash2 } from "lucide-react";
+import { Star, MessageSquare, Pencil, Trash2, Search } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import {
   Select,
@@ -13,6 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Review {
   id: string;
@@ -30,12 +38,14 @@ const Reviews = () => {
   const [user, setUser] = useState<User | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [filteredReviews, setFilteredReviews] = useState<Review[]>([]);
+  const [displayedReviews, setDisplayedReviews] = useState<Review[][]>([]);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
   const [editingReview, setEditingReview] = useState<string | null>(null);
   const [filterRating, setFilterRating] = useState<string>("all");
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -83,6 +93,17 @@ const Reviews = () => {
       setFilteredReviews(reviews.filter((review) => review.rating === rating));
     }
   }, [filterRating, reviews]);
+
+  useEffect(() => {
+    const reviewsPerSlide = isMobile ? 3 : 6;
+    const chunks: Review[][] = [];
+    
+    for (let i = 0; i < filteredReviews.length; i += reviewsPerSlide) {
+      chunks.push(filteredReviews.slice(i, i + reviewsPerSlide));
+    }
+    
+    setDisplayedReviews(chunks);
+  }, [filteredReviews, isMobile]);
 
   const calculateAverageRating = () => {
     if (reviews.length === 0) return 0;
@@ -318,63 +339,104 @@ const Reviews = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {filteredReviews.map((review) => (
-            <Card
-              key={review.id}
-              className="p-6 bg-card border-border hover-glow"
-            >
-              <div className="flex items-center space-x-2 mb-3">
-                {[1, 2, 3, 4, 5].map((value) => (
-                  <Star
-                    key={value}
-                    className={`h-5 w-5 ${
-                      value <= review.rating
-                        ? "fill-primary text-primary"
-                        : "text-muted-foreground"
-                    }`}
-                  />
-                ))}
+        {filteredReviews.length === 0 ? (
+          <Card className="max-w-2xl mx-auto p-12 bg-card border-border text-center">
+            <div className="flex flex-col items-center gap-4">
+              <div className="rounded-full bg-muted p-4">
+                <Search className="h-8 w-8 text-muted-foreground" />
               </div>
-
-              <p className="text-foreground mb-4 line-clamp-4">
-                {review.comment}
+              <h3 className="text-2xl font-orbitron font-bold text-foreground">
+                No hay reseñas disponibles
+              </h3>
+              <p className="text-muted-foreground max-w-md">
+                {filterRating === "all" 
+                  ? "Aún no hay reseñas. ¡Sé el primero en compartir tu experiencia!"
+                  : `No encontramos reseñas con ${filterRating} ${filterRating === "1" ? "estrella" : "estrellas"}. Intenta con otro filtro.`
+                }
               </p>
+            </div>
+          </Card>
+        ) : (
+          <div className="max-w-7xl mx-auto px-4">
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent>
+                {displayedReviews.map((reviewChunk, slideIndex) => (
+                  <CarouselItem key={slideIndex}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {reviewChunk.map((review) => (
+                        <Card
+                          key={review.id}
+                          className="p-6 bg-card border-border hover-glow animate-fade-in"
+                        >
+                          <div className="flex items-center space-x-2 mb-3">
+                            {[1, 2, 3, 4, 5].map((value) => (
+                              <Star
+                                key={value}
+                                className={`h-5 w-5 ${
+                                  value <= review.rating
+                                    ? "fill-primary text-primary"
+                                    : "text-muted-foreground"
+                                }`}
+                              />
+                            ))}
+                          </div>
 
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <div className="flex items-center space-x-2">
-                  <MessageSquare className="h-4 w-4" />
-                  <span>{review.profiles.first_name} {review.profiles.last_name}</span>
-                  <span>•</span>
-                  <span>
-                    {new Date(review.created_at).toLocaleDateString("es-ES")}
-                  </span>
-                </div>
+                          <p className="text-foreground mb-4 line-clamp-4">
+                            {review.comment}
+                          </p>
 
-                {user && review.user_id === user.id && (
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEditReview(review)}
-                      className="h-8 w-8"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteReview(review.id)}
-                      className="h-8 w-8 text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </Card>
-          ))}
-        </div>
+                          <div className="flex items-center justify-between text-sm text-muted-foreground">
+                            <div className="flex items-center space-x-2">
+                              <MessageSquare className="h-4 w-4" />
+                              <span>{review.profiles.first_name} {review.profiles.last_name}</span>
+                              <span>•</span>
+                              <span>
+                                {new Date(review.created_at).toLocaleDateString("es-ES")}
+                              </span>
+                            </div>
+
+                            {user && review.user_id === user.id && (
+                              <div className="flex gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleEditReview(review)}
+                                  className="h-8 w-8"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDeleteReview(review.id)}
+                                  className="h-8 w-8 text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              {displayedReviews.length > 1 && (
+                <>
+                  <CarouselPrevious className="hidden md:flex" />
+                  <CarouselNext className="hidden md:flex" />
+                </>
+              )}
+            </Carousel>
+          </div>
+        )}
       </div>
     </section>
   );

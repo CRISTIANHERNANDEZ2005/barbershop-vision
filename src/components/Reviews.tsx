@@ -13,7 +13,8 @@ interface Review {
   comment: string;
   created_at: string;
   profiles: {
-    full_name: string;
+    first_name: string;
+    last_name: string;
   };
 }
 
@@ -48,7 +49,8 @@ const Reviews = () => {
         comment,
         created_at,
         profiles (
-          full_name
+          first_name,
+          last_name
         )
       `)
       .order("created_at", { ascending: false });
@@ -189,7 +191,7 @@ const Reviews = () => {
 
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                 <MessageSquare className="h-4 w-4" />
-                <span>{review.profiles.full_name}</span>
+                <span>{review.profiles.first_name} {review.profiles.last_name}</span>
                 <span>•</span>
                 <span>
                   {new Date(review.created_at).toLocaleDateString("es-ES")}

@@ -41,6 +41,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "gallery_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
@@ -109,11 +116,38 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      public_profiles: {
+        Row: {
+          avatar_url: string | null
+          first_name: string | null
+          id: string | null
+          last_name: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          first_name?: string | null
+          id?: string | null
+          last_name?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          first_name?: string | null
+          id?: string | null
+          last_name?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

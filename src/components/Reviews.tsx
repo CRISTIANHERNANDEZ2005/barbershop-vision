@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import {
   Carousel,
+  CarouselApi,
   CarouselContent,
   CarouselItem,
   CarouselNext,
@@ -57,6 +58,7 @@ const Reviews = () => {
   const [filterRating, setFilterRating] = useState<string>("all");
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const [api, setApi] = useState<CarouselApi>();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -392,12 +394,13 @@ const Reviews = () => {
               plugins={[
                 Autoplay({
                   delay: 4000,
-                  stopOnInteraction: false,
-                  stopOnMouseEnter: true,
                 }),
               ]}
               orientation={isMobile ? "vertical" : "horizontal"}
               className="w-full"
+              onMouseEnter={() => api?.plugins().autoplay?.stop()}
+              onMouseLeave={() => api?.plugins().autoplay?.play()}
+              setApi={setApi}
             >
               <CarouselContent className="h-[450px] md:h-auto">
                 {displayedReviews.map((reviewChunk, slideIndex) => (

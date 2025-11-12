@@ -29,7 +29,7 @@ interface Review {
   comment: string;
   created_at: string;
   user_id: string;
-  profiles: {
+  public_profiles: {
     first_name: string;
     last_name: string;
   };
@@ -71,7 +71,7 @@ const Reviews = () => {
         comment,
         created_at,
         user_id,
-        profiles (
+        public_profiles (
           first_name,
           last_name
         )
@@ -402,7 +402,7 @@ const Reviews = () => {
                           <div className="flex items-center justify-between text-sm text-muted-foreground">
                             <div className="flex items-center space-x-2">
                               <MessageSquare className="h-4 w-4" />
-                              <span>{review.profiles.first_name} {review.profiles.last_name}</span>
+                              <span>{review.public_profiles.first_name} {review.public_profiles.last_name}</span>
                               <span>•</span>
                               <span>
                                 {new Date(review.created_at).toLocaleDateString("es-ES")}

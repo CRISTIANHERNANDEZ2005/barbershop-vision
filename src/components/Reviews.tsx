@@ -21,6 +21,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useIsMobile } from "@/hooks/use-mobile";
+import Autoplay from "embla-carousel-autoplay";
 
 interface Review {
   id: string;
@@ -363,6 +364,13 @@ const Reviews = () => {
                 align: "start",
                 loop: true,
               }}
+              plugins={[
+                Autoplay({
+                  delay: 4000,
+                  stopOnInteraction: true,
+                }),
+              ]}
+              orientation={isMobile ? "vertical" : "horizontal"}
               className="w-full"
             >
               <CarouselContent>

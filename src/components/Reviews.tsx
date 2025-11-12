@@ -393,6 +393,7 @@ const Reviews = () => {
                 Autoplay({
                   delay: 4000,
                   stopOnInteraction: true,
+                  stopOnMouseEnter: true,
                 }),
               ]}
               orientation={isMobile ? "vertical" : "horizontal"}

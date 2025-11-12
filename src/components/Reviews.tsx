@@ -106,7 +106,7 @@ const Reviews = () => {
   }, [filterRating, reviews]);
 
   useEffect(() => {
-    const reviewsPerSlide = 3;
+    const reviewsPerSlide = isMobile ? 1 : 3;
     const chunks: Review[][] = [];
     
     for (let i = 0; i < filteredReviews.length; i += reviewsPerSlide) {
@@ -399,10 +399,10 @@ const Reviews = () => {
               orientation={isMobile ? "vertical" : "horizontal"}
               className="w-full"
             >
-              <CarouselContent>
+              <CarouselContent className="h-[450px] md:h-auto">
                 {displayedReviews.map((reviewChunk, slideIndex) => (
-                  <CarouselItem key={slideIndex}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <CarouselItem key={slideIndex} className={isMobile ? "basis-1/3" : ""}>
+                    <div className={`grid grid-cols-1 ${isMobile ? "" : "md:grid-cols-2 lg:grid-cols-3"} gap-6`}>
                       {reviewChunk.map((review) => (
                         <Card
                           key={review.id}

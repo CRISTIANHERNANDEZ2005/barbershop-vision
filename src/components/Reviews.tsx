@@ -106,7 +106,7 @@ const Reviews = () => {
   }, [filterRating, reviews]);
 
   useEffect(() => {
-    const reviewsPerSlide = isMobile ? 3 : 6;
+    const reviewsPerSlide = 3;
     const chunks: Review[][] = [];
     
     for (let i = 0; i < filteredReviews.length; i += reviewsPerSlide) {

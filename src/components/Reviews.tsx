@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Star, MessageSquare, Pencil, Trash2, Search } from "lucide-react";
+import { z } from "zod";
 import type { User } from "@supabase/supabase-js";
 import {
   Select,
@@ -22,6 +23,15 @@ import {
 } from "@/components/ui/carousel";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Autoplay from "embla-carousel-autoplay";
+
+const reviewSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  comment: z
+    .string()
+    .trim()
+    .min(1, "El comentario no puede estar vacío")
+    .max(500, "El comentario no puede exceder 500 caracteres"),
+});
 
 interface Review {
   id: string;
@@ -128,6 +138,17 @@ const Reviews = () => {
       toast({
         title: "Inicia sesión",
         description: "Debes iniciar sesión para dejar una reseña.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate input
+    const result = reviewSchema.safeParse({ rating, comment });
+    if (!result.success) {
+      toast({
+        title: "Error de validación",
+        description: result.error.errors[0].message,
         variant: "destructive",
       });
       return;
@@ -293,8 +314,12 @@ const Reviews = () => {
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="Cuéntanos sobre tu experiencia..."
                   className="min-h-32 bg-background/50"
+                  maxLength={500}
                   required
                 />
+                <p className="text-sm text-muted-foreground mt-1">
+                  {comment.length}/500 caracteres
+                </p>
               </div>
 
               <div className="flex gap-2">
